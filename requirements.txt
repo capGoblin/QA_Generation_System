@@ -5,5 +5,4 @@ langchain
 openai
 tiktoken
 pypdf
-faiss-gpu
 faiss-cpu
