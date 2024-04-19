@@ -67,11 +67,19 @@ def generate_true_false_questions(text):
 
     # Create a prompt template with the specified input variable
     prompt = PromptTemplate(input_variables=["text"], template=true_false_prompt_template)
-    questions = None
+
     try:
         llmChain = LLMChain(llm=ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo"), prompt=prompt)
         # Generate questions using the language model
         questions = llmChain.run(text)
+
+        # Parse and format the generated questions
+        ques = []
+        questions = re.findall(r'(\d+)\.\s+(.*)', questions)
+        for number, question in questions:
+            ques.append(f"{number}. {question}")
+
+        return ques
     except OpenAIError as e:
         wait_time = 20
         print(f"Rate limit exceeded. Waiting for {wait_time} seconds...")
@@ -80,13 +88,7 @@ def generate_true_false_questions(text):
 
 
 
-    # Parse and format the generated questions
-    ques = []
-    questions = re.findall(r'(\d+)\.\s+(.*)', questions)
-    for number, question in questions:
-        ques.append(f"{number}. {question}")
-
-    return ques
+    return []
 
 def generate_multiple_choice_questions(text):
     """
@@ -113,30 +115,30 @@ def generate_multiple_choice_questions(text):
 
     # Create a prompt template with the specified input variable
     prompt = PromptTemplate(input_variables=["text"], template=prompt_template)
-    questions = None
-        # Initialize an LLMChain for question generation
+    # Initialize an LLMChain for question generation
     try:
         llmChain = LLMChain(llm=ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo"), prompt=prompt)
 
         # Generate questions using the language model
         questions = llmChain.run(text)
+        # Split generated questions into blocks and format them
+        question_blocks = questions.strip().split('\n\n')
+        question_array = []
+        for block in question_blocks:
+            lines = block.strip().split('\n')
+            question_number, question_content = lines[0].split('. ', 1)
+            options = ' '.join(f"{line.strip()}" for line in lines[1:])
+            formatted_question = f"{question_number}. {question_content} {options}"
+            question_array.append(formatted_question)
+        print("QA", question_array)
+        return question_array
     except OpenAIError as e:
         wait_time = 20
         print(f"Rate limit exceeded. Waiting for {wait_time} seconds...")
         time.sleep(wait_time)
         generate_multiple_choice_questions(text)
     
-    # Split generated questions into blocks and format them
-    question_blocks = questions.strip().split('\n\n')
-    question_array = []
-    for block in question_blocks:
-        lines = block.strip().split('\n')
-        question_number, question_content = lines[0].split('. ', 1)
-        options = ' '.join(f"{line.strip()}" for line in lines[1:])
-        formatted_question = f"{question_number}. {question_content} {options}"
-        question_array.append(formatted_question)
-    print("QA", question_array)
-    return question_array
+    return []
 
 def generate_one_word_answer_questions(text):
     """
@@ -163,23 +165,23 @@ def generate_one_word_answer_questions(text):
 
     # Create a prompt template with the specified input variable
     prompt = PromptTemplate(input_variables=["text"], template=prompt_template)
-    questions = None
 
     try:
         llmChain = LLMChain(llm=ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo"), prompt=prompt)
 
         # Generate questions using the language model
         questions = llmChain.run(text)
+
+        # Split generated questions into a list
+        questions = questions.split('\n')
+        return questions
     except OpenAIError as e:
         wait_time = 20
         print(f"Rate limit exceeded. Waiting for {wait_time} seconds...")
         time.sleep(wait_time)
         generate_one_word_answer_questions(text)
 
-    # Split generated questions into a list
-    questions = questions.split('\n')
-
-    return questions
+    return []
 
 def process_text_and_generate_questions(text):
 
@@ -270,20 +272,20 @@ def generate_true_false_answers(text, answer_generation_chain):
     Returns:
         str: The generated true/false answer (either 'true' or 'false').
     """
-    result = None
 
     try:
         result = answer_generation_chain({"query": text + 'Only Answer.'})
+        # Clean up the generated answer (convert to lowercase and strip whitespace)
+        cleaned_answer = result['result'].strip().lower()
+        return cleaned_answer
     except OpenAIError as e:
         wait_time = 20
         print(f"Rate limit exceeded. Waiting for {wait_time} seconds...")
         time.sleep(wait_time)
-        generate_true_false_answers(text)
+        generate_true_false_answers(text, answer_generation_chain)
 
-    # Clean up the generated answer (convert to lowercase and strip whitespace)
-    cleaned_answer = result['result'].strip().lower()
 
-    return cleaned_answer
+    return ''
 
 def generate_multiple_choice_answers(text, answer_generation_chain):
     """
@@ -296,18 +298,18 @@ def generate_multiple_choice_answers(text, answer_generation_chain):
     Returns:
         str: The generated multiple-choice answer (e.g., 'A', 'B', 'C', etc.).
     """
-    result = None
     try:
         result = answer_generation_chain({"query": text + 'Please select the correct option (A, B, C, etc.) for the following question. Only Answer.'})
+        cleaned_answer = result['result'].strip().upper()
+        return cleaned_answer
     except OpenAIError as e:
         wait_time = 20
         print(f"Rate limit exceeded. Waiting for {wait_time} seconds...")
         time.sleep(wait_time)
-        generate_multiple_choice_answers(text)
+        generate_multiple_choice_answers(text, answer_generation_chain)
 
-    cleaned_answer = result['result'].strip().upper()
 
-    return cleaned_answer
+    return ''
 
 def generate_one_word_answers(text, answer_generation_chain):
     """
@@ -320,17 +322,17 @@ def generate_one_word_answers(text, answer_generation_chain):
     Returns:
         str: The generated one-word answer.
     """
-    result = None
     try:
         result = answer_generation_chain({"query": text + 'Please provide a one-word answer to the following question. Only Answer.'})
+        # Clean up the generated answer (convert to uppercase and strip whitespace)
+        cleaned_answer = result['result'].strip().lower()
+        return cleaned_answer
     except OpenAIError as e:
         wait_time = 20
         print(f"Rate limit exceeded. Waiting for {wait_time} seconds...")
         time.sleep(wait_time)
-        generate_one_word_answers(text)
+        generate_one_word_answers(text, answer_generation_chain)
 
-    # Clean up the generated answer (convert to uppercase and strip whitespace)
-    cleaned_answer = result['result'].strip().lower()
 
     return cleaned_answer
 
