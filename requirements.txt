@@ -3,3 +3,7 @@ PyPDF2
 requests
 langchain
 openai
+tiktoken
+pypdf
+faiss-gpu
+faiss-cpu
