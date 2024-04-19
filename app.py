@@ -1,8 +1,6 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 import csv
-import requests
-import io
 from qa_generation_system import process_text_and_generate_questions, generate_ans_for_generated_ques
 
 # Function to extract text from PDF file
