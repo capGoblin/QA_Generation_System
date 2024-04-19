@@ -67,7 +67,7 @@ def generate_true_false_questions(text):
 
     # Create a prompt template with the specified input variable
     prompt = PromptTemplate(input_variables=["text"], template=true_false_prompt_template)
-
+    questions = None
     try:
         llmChain = LLMChain(llm=ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo"), prompt=prompt)
         # Generate questions using the language model
@@ -113,7 +113,7 @@ def generate_multiple_choice_questions(text):
 
     # Create a prompt template with the specified input variable
     prompt = PromptTemplate(input_variables=["text"], template=prompt_template)
-
+    questions = None
         # Initialize an LLMChain for question generation
     try:
         llmChain = LLMChain(llm=ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo"), prompt=prompt)
@@ -270,7 +270,7 @@ def generate_true_false_answers(text, answer_generation_chain):
     Returns:
         str: The generated true/false answer (either 'true' or 'false').
     """
-
+    result = None
 
     try:
         result = answer_generation_chain({"query": text + 'Only Answer.'})
@@ -296,7 +296,7 @@ def generate_multiple_choice_answers(text, answer_generation_chain):
     Returns:
         str: The generated multiple-choice answer (e.g., 'A', 'B', 'C', etc.).
     """
-
+    result = None
     try:
         result = answer_generation_chain({"query": text + 'Please select the correct option (A, B, C, etc.) for the following question. Only Answer.'})
     except OpenAIError as e:
@@ -320,7 +320,7 @@ def generate_one_word_answers(text, answer_generation_chain):
     Returns:
         str: The generated one-word answer.
     """
-
+    result = None
     try:
         result = answer_generation_chain({"query": text + 'Please provide a one-word answer to the following question. Only Answer.'})
     except OpenAIError as e:
