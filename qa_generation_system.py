@@ -203,30 +203,6 @@ def process_text_and_generate_questions(text):
 
     return all_questions
 
-# # Assuming correct implementation of PyPDFLoader and loader.load() to extract text
-# loader = PyPDFLoader('/content/Big Mac Index.pdf')
-# data = loader.load()
-
-# question_gen = []
-
-# for page in data:
-#     question_gen.append(page.page_content)  # Accumulate page content in a list
-
-# # Join all page contents into a single string
-# generated_text = '\n'.join(question_gen)
-
-# # Process the concatenated text to generate questions
-# generated_questions = process_text_and_generate_questions(generated_text)
-
-# print("True/False Questions:")
-# print(generated_questions["true_false"])
-
-# print("\nMultiple-Choice Questions:")
-# print(generated_questions["multiple_choice"])
-
-# print("\nOne-Word Answer Questions:")
-# print(generated_questions["one_word_answer"])
-
 def file_processing(question_gen):
 
     # Load data from PDF
@@ -390,16 +366,4 @@ def generate_ans_for_generated_ques(generated_questions, pdf_text):
     print(question_answer_mapping)
 
 
-    # # Write question-answer mappings to a CSV file
-    # with open('question_answer_mapping.csv', 'w', newline='', encoding='utf-8') as csvfile:
-    #     fieldnames = ['Question', 'Answer']
-    #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-    #     # Write CSV header
-    #     writer.writeheader()
-
-    #     # Write question-answer pairs to CSV rows
-    #     for question, answer in question_answer_mapping.items():
-    #         writer.writerow({'Question': question, 'Answer': answer})
     return question_answer_mapping
-# generate_ans_for_generated_ques(generated_questions)
