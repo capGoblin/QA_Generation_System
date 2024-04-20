@@ -152,12 +152,12 @@ def generate_one_word_answer_questions(text):
     """
     # Define the prompt template for one-word answer questions
     prompt_template = """
-    You are preparing questions that will have one word answers only based on the following text chunk:
+    You are preparing questions that will have only one word answer based on the following text chunk:
     ------------
     {text}
     ------------
 
-    Generate one-word answer questions that target key information.
+    Provide questions that will have only one possible word answer.
 
     QUESTIONS:
     """
