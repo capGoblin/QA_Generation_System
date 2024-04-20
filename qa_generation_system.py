@@ -60,7 +60,7 @@ def generate_true_false_questions(text):
     ------------
 
     Create true/false questions that will assess understanding.
-    Ensure questions are clear and concise.
+    Ensure questions are clear and relevant.
 
     QUESTIONS:
     """
